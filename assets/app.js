@@ -1,0 +1,218 @@
+(function(){
+"use strict";
+
+var TERMS=ACS.TERMS, AC0=ACS.AC0, AC100=ACS.AC100, SACS=ACS.SACS, MATRIX=ACS.MATRIX;
+var COM_TERMS=ACS.COM_TERMS, LEVELS=ACS.LEVELS;
+var PRIMA_MIN=ACS.PRIMA_MIN, PRIMA_MAX=ACS.PRIMA_MAX;
+
+/* ── Interpolación monótona (pchip) ─────────────────────────────────── */
+function endSlope(h0,h1,d0,d1){var m=((2*h0+h1)*d0-h0*d1)/(h0+h1);
+  if(m*d0<=0)m=0; else if(d0*d1<=0&&Math.abs(m)>Math.abs(3*d0))m=3*d0; return m;}
+function pchip(xs,ys){var n=xs.length,h=[],d=[],i;
+  for(i=0;i<n-1;i++){h[i]=xs[i+1]-xs[i];d[i]=(ys[i+1]-ys[i])/h[i];}
+  var m=new Array(n);
+  m[0]=endSlope(h[0],h[1],d[0],d[1]);
+  m[n-1]=endSlope(h[n-2],h[n-3],d[n-2],d[n-3]);
+  for(i=1;i<n-1;i++){ if(d[i-1]*d[i]<=0){m[i]=0;} else {
+    var w1=2*h[i]+h[i-1],w2=h[i]+2*h[i-1]; m[i]=(w1+w2)/(w1/d[i-1]+w2/d[i]); } }
+  return function(x){var k=n-2,j;
+    for(j=0;j<n-1;j++){if(x<=xs[j+1]){k=j;break;}}
+    if(x<xs[0])k=0;
+    var t=(x-xs[k])/h[k],t2=t*t,t3=t2*t;
+    return (2*t3-3*t2+1)*ys[k]+(t3-2*t2+t)*h[k]*m[k]+(-2*t3+3*t2)*ys[k+1]+(t3-t2)*h[k]*m[k+1];};}
+
+/* ── Admin charge según término y sacrificio ────────────────────────── */
+var order=[10,9,8,7,6,5,4,3];
+var xs=order.map(function(t){return 1/t;});
+var f0=pchip(xs,order.map(function(t){return AC0[t];}));
+var f100=pchip(xs,order.map(function(t){return AC100[t];}));
+function ac0(T){return f0(1/T);} function ac100(T){return f100(1/T);}
+function acOf(T,s){var a=ac0(T);return a+(ac100(T)-a)*s/100;}
+function sacFromAc(T,v){var a=ac0(T),b=ac100(T);return (a-v)/(a-b)*100;}
+
+/* ── Comisión: escala fija de la estructura ─────────────────────────
+   Cada nivel trae su ACS publicado a 3, 5, 8 y 10 años; entre esos
+   términos se interpola. Comisión = ACS × Prima × (1 − Sacrificio%). */
+var LVL={}, COM={};
+LEVELS.forEach(function(L){ LVL[L.n]=L; COM[L.n]=pchip(COM_TERMS,L.acs); });
+function comPctOf(T,nivel){var f=COM[nivel];return f?f(T):null;}
+function comMaxOf(prima,T,nivel){var q=comPctOf(T,nivel);
+  return q===null?null:prima*q/100;}
+
+/* ── Estado y formato ───────────────────────────────────────────────── */
+var st={prima:100000,T:10,nivel:ACS.DEFAULT_LEVEL,s:0},primaOk=true;
+var $=function(id){return document.getElementById(id);};
+var fmtM=new Intl.NumberFormat("es-UY",{style:"currency",currency:"USD",maximumFractionDigits:0});
+var fmtM2=new Intl.NumberFormat("es-UY",{maximumFractionDigits:0});
+function pct(v,d){return v.toFixed(d==null?2:d).replace(".",",");}
+function pctLvl(v){return pct(v,v%1?1:0);}
+
+var selN=$("nivel");
+LEVELS.forEach(function(L){var o=document.createElement("option");
+  o.value=L.n;o.textContent="Nivel "+L.n+" · "+pctLvl(L.pct)+"%";selN.appendChild(o);});
+selN.value=st.nivel;
+
+/* ── Tablas ─────────────────────────────────────────────────────────── */
+function buildLevels(){
+  var h="<thead><tr><th class='lft'>Nivel</th><th>%</th>";
+  COM_TERMS.forEach(function(T){h+="<th>ACS "+T+"Y</th>";});
+  h+="</tr></thead><tbody>";
+  LEVELS.forEach(function(L){
+    h+="<tr data-n='"+L.n+"'><th class='lft'>Nivel "+L.n+"</th><td>"+pctLvl(L.pct)+"</td>";
+    L.acs.forEach(function(v){h+="<td>"+pct(v)+"%</td>";});
+    h+="</tr>";});
+  $("lvls").innerHTML=h+"</tbody>";
+}
+
+function buildMatrix(){
+  var h="<thead><tr><th class='lft'>Sacrificio</th>";
+  TERMS.forEach(function(T){h+="<th data-t='"+T+"'>"+T+" años</th>";});
+  h+="</tr></thead><tbody>";
+  SACS.forEach(function(s){h+="<tr data-s='"+s+"'><th>"+s+"%</th>";
+    MATRIX[s].forEach(function(v,i){h+="<td data-s='"+s+"' data-t='"+TERMS[i]+"'>"+pct(v)+"%</td>";});
+    h+="</tr>";});
+  $("mtx").innerHTML=h+"</tbody>";
+}
+
+/* ── Gráfico ────────────────────────────────────────────────────────── */
+var W=960,H=380,PL=58,PR=100,PT=36,PB=46;
+var X0=3,X1=10,Y0=0,Y1=2.5;
+function px(T){return PL+(T-X0)/(X1-X0)*(W-PL-PR);}
+function py(v){return H-PB-(v-Y0)/(Y1-Y0)*(H-PT-PB);}
+function path(fn){var d="",T;
+  for(var k=0;k<=140;k++){T=X0+(X1-X0)*k/140;d+=(k?"L":"M")+px(T).toFixed(2)+" "+py(fn(T)).toFixed(2);}
+  return d;}
+
+function drawChart(){
+  var s=st.s,T=st.T,v=acOf(T,s),g="";
+  g+="<g>";
+  for(var y=0;y<=2.5001;y+=0.5){
+    g+="<line x1='"+PL+"' y1='"+py(y).toFixed(1)+"' x2='"+(W-PR)+"' y2='"+py(y).toFixed(1)+"' stroke='var(--line)' stroke-width='1'/>";
+    g+="<text class='ax' x='"+(PL-10)+"' y='"+(py(y)+3.5).toFixed(1)+"' text-anchor='end'>"+pct(y,1)+"%</text>";}
+  TERMS.forEach(function(t){
+    g+="<text class='ax' x='"+px(t).toFixed(1)+"' y='"+(H-PB+18)+"' text-anchor='middle'>"+t+"</text>";});
+  g+="<text class='axname' x='"+PL+"' y='"+(H-6)+"'>Término (años)</text>";
+  g+="<text class='axname' x='"+(PL-46)+"' y='16'>Admin charge (% anual)</text>";
+  g+="</g>";
+  var env=path(function(t){return ac0(t);}),k2;
+  for(k2=140;k2>=0;k2--){var tt2=X0+(X1-X0)*k2/140;env+="L"+px(tt2).toFixed(2)+" "+py(ac100(tt2)).toFixed(2);}
+  g+="<path d='"+env+"Z' fill='var(--teal)' fill-opacity='.05' stroke='none'/>";
+  SACS.forEach(function(q){ if(Math.abs(q-s)<0.5) return;
+    g+="<path d='"+path(function(t){return acOf(t,q);})+"' fill='none' stroke='var(--teal)' stroke-opacity='.2' stroke-width='1'/>";});
+  g+="<text class='dirlab' x='"+(W-PR+8)+"' y='"+(py(ac0(10))+3.5).toFixed(1)+"'>s = 0%</text>";
+  g+="<text class='dirlab' x='"+(W-PR+8)+"' y='"+(py(ac100(10))+3.5).toFixed(1)+"'>s = 100%</text>";
+  g+="<path d='"+path(function(t){return acOf(t,s);})+"' fill='none' stroke='var(--teal)' stroke-width='2.5' stroke-linecap='round'/>";
+  g+="<line id='cross' x1='0' y1='"+PT+"' x2='0' y2='"+(H-PB)+"' stroke='var(--line-strong)' stroke-width='1' stroke-dasharray='3 3' opacity='0'/>";
+  g+="<circle cx='"+px(T).toFixed(2)+"' cy='"+py(v).toFixed(2)+"' r='7' fill='var(--teal)' stroke='var(--surface)' stroke-width='2.5'/>";
+  var lx=px(T), anchor=lx>W-PR-70?"end":"start", ox=anchor==="end"?-13:13;
+  g+="<text class='dirlab' style='font-weight:600' x='"+(lx+ox).toFixed(1)+"' y='"+(py(v)-12).toFixed(1)+"' text-anchor='"+anchor+"' fill='var(--teal)'>"+pct(v)+"%</text>";
+  g+="<rect id='hit' x='"+PL+"' y='"+PT+"' width='"+(W-PL-PR)+"' height='"+(H-PT-PB)+"' fill='transparent' style='cursor:crosshair'/>";
+  $("chart").innerHTML=g;
+  wireChart();
+}
+
+function wireChart(){
+  var svg=$("chart"),hit=document.getElementById("hit"),cross=document.getElementById("cross"),tt=$("tt");
+  if(!hit)return;
+  function tAt(ev){var r=svg.getBoundingClientRect(),sx=(ev.clientX-r.left)/r.width*W;
+    return Math.min(X1,Math.max(X0,X0+(sx-PL)/(W-PL-PR)*(X1-X0)));}
+  hit.addEventListener("mousemove",function(ev){
+    var T=tAt(ev),v=acOf(T,st.s),cx=comMaxOf(st.prima,T,st.nivel),cm=cx===null?null:cx*(1-st.s/100);
+    cross.setAttribute("x1",px(T));cross.setAttribute("x2",px(T));cross.setAttribute("opacity","1");
+    tt.innerHTML="<b>"+pct(v)+"%</b> admin charge<br>"+pct(T,2)+" años · sacrificio "+st.s+"%"+((primaOk&&cm!==null)?"<br>comisión "+fmtM.format(cm):"");
+    var r=svg.getBoundingClientRect(),wr=$("chartWrap").getBoundingClientRect();
+    var lx=r.left-wr.left+px(T)/W*r.width, ly=r.top-wr.top+py(v)/H*r.height;
+    tt.style.opacity="1";
+    tt.style.left=Math.min(Math.max(6,lx-tt.offsetWidth/2),wr.width-tt.offsetWidth-6)+"px";
+    tt.style.top=(ly-tt.offsetHeight-16)+"px";});
+  hit.addEventListener("mouseleave",function(){cross.setAttribute("opacity","0");tt.style.opacity="0";});
+  hit.addEventListener("click",function(ev){setT(Math.round(tAt(ev)*4)/4);});
+}
+
+function highlight(){
+  var nt=TERMS.reduce(function(a,b){return Math.abs(b-st.T)<Math.abs(a-st.T)?b:a;});
+  var ns=Math.round(st.s/10)*10;
+  Array.prototype.forEach.call(document.querySelectorAll("#mtx td"),function(c){c.classList.remove("hot");});
+  Array.prototype.forEach.call(document.querySelectorAll("#mtx tr, #lvls tr"),function(r){r.classList.remove("rowhot");});
+  Array.prototype.forEach.call(document.querySelectorAll("#mtx th[data-t]"),function(c){c.classList.remove("colhot");});
+  var row=document.querySelector("#mtx tr[data-s='"+ns+"']");if(row)row.classList.add("rowhot");
+  var cell=document.querySelector("#mtx td[data-s='"+ns+"'][data-t='"+nt+"']");if(cell)cell.classList.add("hot");
+  var head=document.querySelector("#mtx th[data-t='"+nt+"']");if(head)head.classList.add("colhot");
+  var lrow=document.querySelector("#lvls tr[data-n='"+st.nivel+"']");if(lrow)lrow.classList.add("rowhot");
+}
+
+/* ── Validación y render ────────────────────────────────────────────── */
+var lock=false;
+function checkPrima(){
+  var el=$("prima"),msg=$("primaErr"),v=st.prima;
+  primaOk = !(isFinite(v)===false) && v>=PRIMA_MIN && v<=PRIMA_MAX;
+  if(primaOk){ el.classList.remove("bad"); msg.classList.remove("on"); msg.textContent=""; }
+  else{
+    el.classList.add("bad"); msg.classList.add("on");
+    msg.textContent = (v<PRIMA_MIN)
+      ? "Prima por debajo del mínimo. El rango admitido es "+fmtM.format(PRIMA_MIN)+" a "+fmtM.format(PRIMA_MAX)+"."
+      : "Prima por encima del máximo. El rango admitido es "+fmtM.format(PRIMA_MIN)+" a "+fmtM.format(PRIMA_MAX)+".";
+  }
+  return primaOk;
+}
+
+function render(){
+  lock=true;
+  var T=st.T,s=st.s;
+  var a=ac0(T),b=ac100(T),v=acOf(T,s);
+  var q=comPctOf(T,st.nivel), cmax=comMaxOf(st.prima,T,st.nivel);
+  var hasCom=primaOk&&cmax!==null, c=hasCom?cmax*(1-s/100):0;
+  $("termN").value=T; $("termR").value=T;
+  $("termEcho").textContent=(T%1===0?T:pct(T,2))+" años";
+  $("sac").value=Math.round(s*10)/10; $("sacR").value=s;
+  if(hasCom){ $("com").value=Math.round(c); $("com").disabled=false; }
+  else { $("com").value=""; $("com").disabled=true; }
+  $("ac").value=+v.toFixed(3);
+  $("comMax").textContent = hasCom
+    ? ("Máximo a "+(T%1===0?T:pct(T,2))+" años, nivel "+st.nivel+": "+fmtM.format(cmax)+" · "+pct(q)+"% de la prima")
+    : "Sin cálculo hasta corregir la prima.";
+  $("acBps").textContent=Math.round(v*100)+" pb anuales · rango "+pct(b)+"–"+pct(a)+"%";
+  $("curveEcho").textContent=Math.round(s)+"%";
+  var dAc=(a-b)*0.10, dCom=hasCom?cmax*0.10:0;
+  $("d10ac").textContent="−"+pct(dAc)+" pp ("+Math.round(dAc*100)+" pb)";
+  $("d10com").textContent=hasCom?("−"+fmtM.format(dCom)):"—";
+  $("d10r").textContent=hasCom?(fmtM2.format(Math.round(dCom/(dAc*100)))+" USD"):"—";
+  drawChart(); highlight();
+  lock=false;
+}
+function setS(v){st.s=Math.min(100,Math.max(0,v));render();}
+function setT(v){st.T=Math.min(10,Math.max(3,v));render();}
+
+/* ── Eventos ────────────────────────────────────────────────────────── */
+$("termN").addEventListener("input",function(){if(!lock&&this.value!=="")setT(parseFloat(this.value));});
+$("termR").addEventListener("input",function(){if(!lock)setT(parseFloat(this.value));});
+$("prima").addEventListener("input",function(){if(lock)return;
+  st.prima=this.value===""?NaN:parseFloat(this.value); checkPrima(); render();});
+$("nivel").addEventListener("change",function(){st.nivel=parseInt(this.value,10);render();});
+$("sac").addEventListener("input",function(){if(!lock&&this.value!=="")setS(parseFloat(this.value));});
+$("sacR").addEventListener("input",function(){if(!lock)setS(parseFloat(this.value));});
+$("com").addEventListener("input",function(){if(lock||!primaOk||this.value==="")return;
+  var cmax=comMaxOf(st.prima,st.T,st.nivel); if(!cmax)return;
+  setS(100*(1-parseFloat(this.value)/cmax));});
+$("ac").addEventListener("input",function(){if(lock||this.value==="")return;
+  setS(sacFromAc(st.T,parseFloat(this.value)));});
+$("copy").addEventListener("click",function(){
+  var T=st.T,cmax=comMaxOf(st.prima,T,st.nivel);
+  var txt="Prima "+fmtM.format(st.prima)+" · término "+T+" años · nivel "+st.nivel+
+    " · sacrificio "+Math.round(st.s)+"%"+
+    (cmax===null?"":" → comisión "+fmtM.format(cmax*(1-st.s/100)))+
+    " · admin charge "+pct(acOf(T,st.s))+"% anual";
+  var b=this;
+  if(!primaOk) txt="Prima fuera del rango admitido · término "+T+" años · sacrificio "+Math.round(st.s)+
+    "% → admin charge "+pct(acOf(T,st.s))+"% anual";
+  if(navigator.clipboard){navigator.clipboard.writeText(txt).then(function(){
+    b.textContent="Copiado";setTimeout(function(){b.textContent="Copiar resumen del caso";},1600);});}
+});
+$("theme").addEventListener("click",function(){
+  var r=document.documentElement, cur=r.getAttribute("data-theme");
+  var dark=cur?cur==="dark":window.matchMedia("(prefers-color-scheme: dark)").matches;
+  r.setAttribute("data-theme",dark?"light":"dark"); drawChart();});
+
+buildLevels(); buildMatrix(); checkPrima(); render();
+window.addEventListener("resize",function(){drawChart();});
+})();

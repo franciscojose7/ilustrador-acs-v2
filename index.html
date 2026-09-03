@@ -6,159 +6,12 @@
 <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>&#128201;</text></svg>">
 <title>ACS: Sacrificio y Admin Charge</title>
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Newsreader:opsz,wght@6..72,400;6..72,500;6..72,600&family=IBM+Plex+Sans:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500;600&display=swap">
-<style>
-:root{
-  --paper:#EEF2F3; --surface:#FFFFFF; --surface-2:#F7FAFA;
-  --ink:#0F1E24; --ink-2:#44606B; --muted:#7B939C;
-  --line:#DBE4E7; --line-strong:#C2D1D6;
-  --teal:#008C99; --teal-soft:#E2F0F1; --amber:#B06400; --amber-soft:#F6EDE0;
-  --shadow:0 1px 2px rgba(15,30,36,.05), 0 8px 24px -12px rgba(15,30,36,.18);
-  --r:10px;
-}
-@media (prefers-color-scheme:dark){
-  :root:not([data-theme="light"]){
-    --paper:#0D1416; --surface:#151E21; --surface-2:#1B2528;
-    --ink:#E7EFF1; --ink-2:#A3B8BF; --muted:#71888F;
-    --line:#25343A; --line-strong:#33464D;
-    --teal:#1FA5B0; --teal-soft:#12333A; --amber:#BC8318; --amber-soft:#33260F;
-    --shadow:0 1px 2px rgba(0,0,0,.4), 0 8px 24px -12px rgba(0,0,0,.7);
-  }
-}
-:root[data-theme="dark"]{
-  --paper:#0D1416; --surface:#151E21; --surface-2:#1B2528;
-  --ink:#E7EFF1; --ink-2:#A3B8BF; --muted:#71888F;
-  --line:#25343A; --line-strong:#33464D;
-  --teal:#1FA5B0; --teal-soft:#12333A; --amber:#BC8318; --amber-soft:#33260F;
-  --shadow:0 1px 2px rgba(0,0,0,.4), 0 8px 24px -12px rgba(0,0,0,.7);
-}
-*{box-sizing:border-box}
-body{margin:0;background:var(--paper);color:var(--ink);
-  font-family:"IBM Plex Sans",-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;
-  font-size:15px;line-height:1.5;-webkit-font-smoothing:antialiased}
-.wrap{max-width:1180px;margin:0 auto;padding:26px 24px 64px;display:flex;flex-direction:column;gap:18px}
-h1,h2,h3{margin:0;text-wrap:balance}
-.eyebrow{font-size:11px;letter-spacing:.14em;text-transform:uppercase;color:var(--muted);font-weight:600}
-h1{font-family:Newsreader,Georgia,serif;font-weight:500;font-size:clamp(26px,3.4vw,36px);
-  letter-spacing:-.015em;line-height:1.1;margin:4px 0 0}
-header{border-bottom:1px solid var(--line);padding-bottom:16px;margin:0;
-  display:flex;justify-content:space-between;align-items:center;gap:20px;flex-wrap:wrap}
-.themebtn{background:var(--surface);border:1px solid var(--line);color:var(--ink-2);
-  border-radius:999px;padding:7px 14px;font:inherit;font-size:12.5px;cursor:pointer;white-space:nowrap}
-.themebtn:hover{border-color:var(--line-strong);color:var(--ink)}
-.panel{background:var(--surface);border:1px solid var(--line);border-radius:var(--r);box-shadow:var(--shadow)}
-.panel-h{padding:15px 18px 0}
-.panel-t{font-family:Newsreader,Georgia,serif;font-size:19px;font-weight:500}
-.panel-s{font-size:12.5px;color:var(--muted);margin-top:2px}
-.f-lab{font-size:11px;letter-spacing:.1em;text-transform:uppercase;color:var(--muted);font-weight:600;
-  display:flex;justify-content:space-between;align-items:baseline;gap:8px}
-.f-lab em{font-style:normal;font-family:"IBM Plex Mono",monospace;letter-spacing:0;text-transform:none;
-  font-size:12px;color:var(--ink-2)}
-input[type=number],input[type=text],select{width:100%;background:var(--surface-2);color:var(--ink);
-  border:1px solid var(--line);border-radius:7px;padding:9px 11px;font-family:"IBM Plex Mono",monospace;
-  font-size:15px;font-variant-numeric:tabular-nums}
-select{font-family:"IBM Plex Sans",sans-serif}
-input:focus-visible,select:focus-visible,button:focus-visible,input[type=range]:focus-visible{
-  outline:2px solid var(--teal);outline-offset:2px}
-input[type=range]{width:100%;accent-color:var(--teal);margin:0}
-.rail{display:flex;gap:9px;align-items:center}
-.rail input[type=number]{width:92px;flex:0 0 auto}
-.rail input[type=range]{flex:1}
-
-/* ---- tablero principal ---- */
-.board{overflow:hidden}
-.brow{display:grid;grid-template-columns:repeat(3,1fr)}
-.bcell{padding:16px 20px;display:flex;flex-direction:column;gap:8px;justify-content:flex-start;min-width:0}
-.brow .bcell+.bcell{border-left:1px solid var(--line)}
-.brow.out{background:var(--surface-2)}
-.brow.out .bcell{gap:9px;padding-bottom:18px}
-.bdiv{border-top:1px solid var(--line);border-bottom:1px solid var(--line);
-  background:var(--surface-2);padding:7px 20px}
-.bdiv span{font-size:10.5px;letter-spacing:.09em;text-transform:uppercase;color:var(--muted);font-weight:600}
-.bfoot{border-top:1px solid var(--line);padding:12px 20px;
-  display:flex;flex-wrap:wrap;gap:5px 26px;align-items:baseline}
-@media(max-width:820px){
-  .brow{grid-template-columns:1fr}
-  .brow .bcell+.bcell{border-left:0;border-top:1px solid var(--line)}
-}
-@media(max-width:760px){
-  #chartWrap{overflow-x:auto}
-  #chart{min-width:620px}
-}
-.big{font-family:"IBM Plex Mono",monospace;font-size:clamp(24px,3vw,30px);font-weight:500;
-  letter-spacing:-.02em;font-variant-numeric:tabular-nums;padding:6px 10px;color:var(--ink);
-  flex:1;min-width:0;width:auto;background:var(--surface);border:1px solid var(--line);border-radius:7px}
-.big:hover{border-color:var(--line-strong)}
-.big:disabled{color:var(--muted);opacity:1}
-.fieldrow{display:flex;align-items:center;gap:8px}
-.big.tealv{color:var(--teal)} .big.amberv{color:var(--amber)}
-.unit{font-size:12px;color:var(--muted);line-height:1.35}
-.to-lab{font-size:10.5px;letter-spacing:.09em;text-transform:uppercase;color:var(--muted);font-weight:600;width:100%}
-.to-item{font-size:13.5px;color:var(--ink-2)}
-.to-item b{font-family:"IBM Plex Mono",monospace;font-weight:500;color:var(--ink);font-variant-numeric:tabular-nums}
-.note{font-size:12.5px;color:var(--ink-2)}
-.chart-h{padding:16px 18px 4px;display:flex;justify-content:space-between;align-items:baseline;gap:16px;flex-wrap:wrap}
-svg{display:block;width:100%;height:auto;overflow:visible}
-.ax{font-family:"IBM Plex Mono",monospace;font-size:10.5px;fill:var(--muted)}
-.axname{font-family:"IBM Plex Sans",sans-serif;font-size:10.5px;fill:var(--muted);
-  letter-spacing:.1em;text-transform:uppercase;font-weight:600}
-.dirlab{font-family:"IBM Plex Mono",monospace;font-size:10.5px;fill:var(--ink-2)}
-table{border-collapse:collapse;width:100%;font-family:"IBM Plex Mono",monospace;font-size:12.5px;
-  font-variant-numeric:tabular-nums}
-.tscroll{overflow-x:auto;padding:0 18px 18px}
-th,td{padding:6px 9px;text-align:right;white-space:nowrap;border-bottom:1px solid var(--line)}
-thead th{color:var(--muted);font-weight:500;font-size:11px;letter-spacing:.06em;border-bottom:1px solid var(--line-strong)}
-tbody th{text-align:left;color:var(--ink-2);font-weight:500}
-td.hot{background:var(--teal);color:#fff;font-weight:600;border-radius:4px}
-tr.rowhot th,tr.rowhot td{background:var(--teal-soft)}
-tr.rowhot td.hot{background:var(--teal)}
-th.colhot{color:var(--teal)}
-details{margin-top:0;background:var(--surface);border:1px solid var(--line);border-radius:var(--r);box-shadow:var(--shadow)}
-summary{padding:14px 18px;cursor:pointer;font-size:13.5px;font-weight:600;color:var(--ink-2);
-  display:flex;align-items:center;gap:10px;list-style:none}
-summary::-webkit-details-marker{display:none}
-summary::before{content:"+";font-family:"IBM Plex Mono",monospace;color:var(--teal);font-size:16px}
-details[open] summary::before{content:"\2212"}
-.cfg{padding:0 18px 18px;display:flex;flex-direction:column;gap:18px}
-.cfgrid{display:grid;grid-template-columns:repeat(auto-fill,minmax(96px,1fr));gap:9px}
-.cfgrid label{display:flex;flex-direction:column;gap:3px;font-size:10.5px;color:var(--muted);
-  letter-spacing:.06em;text-transform:uppercase;font-weight:600}
-.cfgrid input{padding:6px 8px;font-size:13px}
-.pcrow{display:flex;align-items:center;gap:6px}
-.pcrow input{flex:1;min-width:0}
-.pcrow .pc{font-family:"IBM Plex Mono",monospace;font-size:13px;color:var(--muted);
-  text-transform:none;letter-spacing:0;font-weight:500}
-input.bad{border-color:var(--amber);background:var(--amber-soft)}
-.err{font-size:12.5px;color:var(--amber);line-height:1.4;display:none}
-.err.on{display:block}
-.big:disabled{color:var(--muted);opacity:1}
-.badge{display:inline-block;background:var(--amber-soft);color:var(--amber);font-size:10.5px;font-weight:600;
-  letter-spacing:.08em;text-transform:uppercase;padding:3px 8px;border-radius:999px}
-button.act{background:var(--surface-2);border:1px solid var(--line);color:var(--ink);border-radius:7px;
-  padding:8px 14px;font:inherit;font-size:13px;cursor:pointer}
-button.act:hover{border-color:var(--teal);color:var(--teal)}
-.acts{display:flex;gap:9px;flex-wrap:wrap}
-.foot{margin-top:26px;font-size:12.5px;color:var(--muted);max-width:76ch}
-.foot b{color:var(--ink-2);font-weight:600}
-.tt{position:absolute;pointer-events:none;background:var(--surface);border:1px solid var(--line-strong);
-  border-radius:7px;padding:8px 11px;font-size:12px;box-shadow:var(--shadow);opacity:0;transition:opacity .1s;
-  font-family:"IBM Plex Mono",monospace;line-height:1.45;white-space:nowrap;z-index:5}
-.tt b{color:var(--teal);font-weight:600}
-@media(prefers-reduced-motion:reduce){*{transition:none!important;animation:none!important}}
-</style>
+<link rel="stylesheet" href="assets/styles.css">
+<style>body.locked .wrap{display:none}</style>
 </head>
 <body>
-<!-- ==== Acceso simple (contraseña: ver HASH abajo) ==== -->
-<style>
-#gate{position:fixed;inset:0;z-index:9999;background:var(--paper);
-  display:flex;align-items:center;justify-content:center;padding:24px}
-#gate form{background:var(--surface);border:1px solid var(--line);border-radius:var(--r);
-  box-shadow:var(--shadow);padding:24px;width:100%;max-width:320px;display:flex;flex-direction:column;gap:10px}
-#gate h2{font-family:Newsreader,Georgia,serif;font-weight:500;font-size:20px}
-#gate .err{color:var(--amber);font-size:12px;min-height:14px}
-#gate button{background:var(--teal);color:#fff;border:0;border-radius:7px;padding:10px;
-  font:inherit;font-weight:600;cursor:pointer}
-body.locked .wrap{display:none}
-</style>
+
+<!-- ==== Acceso (ver assets/gate.js) ==== -->
 <div id="gate">
   <form id="gateForm">
     <div class="eyebrow">Acceso restringido</div>
@@ -168,37 +21,8 @@ body.locked .wrap{display:none}
     <span class="err" id="gateErr"></span>
   </form>
 </div>
-<script>
-(function(){
-  // SHA-256 de la contraseña (por defecto: acs2026).
-  // Para cambiarla:  printf %s "nuevaClave" | sha256sum
-  var HASH="0b00d0c287829e181b2689b7815651cfa14b32d566c6392e8d6a616aa5570994";
-  var b=document.body, g=document.getElementById("gate");
-  function abrir(){ b.classList.remove("locked"); g.remove(); }
-  function sha256(t){
-    return crypto.subtle.digest("SHA-256",new TextEncoder().encode(t)).then(function(h){
-      return Array.from(new Uint8Array(h)).map(function(x){return x.toString(16).padStart(2,"0")}).join("");
-    });
-  }
-  b.classList.add("locked");
-  if(sessionStorage.getItem("acsOk")==="1"){ abrir(); return; }
-  document.getElementById("gateForm").addEventListener("submit",function(e){
-    e.preventDefault();
-    var inp=document.getElementById("gatePass");
-    sha256(inp.value).then(function(h){
-      if(h===HASH){
-        try{sessionStorage.setItem("acsOk","1")}catch(_){}
-        abrir();
-      }else{
-        document.getElementById("gateErr").textContent="Contraseña incorrecta";
-        inp.value="";
-      }
-    });
-  });
-  document.getElementById("gatePass").focus();
-})();
-</script>
-<!-- ==== fin acceso ==== -->
+<script src="assets/gate.js"></script>
+
 <div class="wrap">
 <header>
   <div class="hgroup">
@@ -265,6 +89,12 @@ body.locked .wrap{display:none}
   </div>
 </section>
 
+<section class="panel">
+  <div class="panel-h"><div class="panel-t">Escala de comisión de la estructura</div>
+    <div class="panel-s">Fija. ACS = comisión upfront máxima (sacrificio 0%) en % de la prima. La fila resaltada es el nivel elegido; entre 3, 5, 8 y 10 años se interpola.</div></div>
+  <div class="tscroll"><table id="lvls"></table></div>
+</section>
+
 <section class="panel matrixcard">
   <div class="panel-h"><div class="panel-t">Matriz publicada</div>
     <div class="panel-s">Admin charge (%) por sacrificio y término. La celda resaltada es la más cercana al caso actual.</div></div>
@@ -272,16 +102,14 @@ body.locked .wrap{display:none}
 </section>
 
 <details>
-  <summary>Cargar la escala de comisión</summary>
+  <summary>Cómo se calcula</summary>
   <div class="cfg">
-    <div>
-      <div class="note" style="margin-bottom:10px">Comisión upfront = Admin charge sin sacrificio &times; Prima &times; Años del término &times; % del nivel &times; (1 − Sacrificio%). Lo único que falta cargar es el % de cada nivel.</div>
-      <div class="f-lab" style="margin-bottom:7px">% que aplica cada nivel de estructura</div>
-      <div class="cfgrid" id="cfgLvl"></div>
+    <div class="note">
+      Comisión upfront = ACS del nivel al término elegido &times; Prima &times; (1 &minus; Sacrificio%).<br>
+      Admin charge = interpolación entre la fila de 0% y la de 100% de sacrificio de la matriz publicada.<br>
+      Las tres tablas (admin charge, matriz y escala de comisión) viven en <b>assets/data.js</b>.
     </div>
     <div class="acts">
-      <button class="act" id="preset" type="button">Cargar 85, 80, 75 … 15</button>
-      <button class="act" id="reset" type="button">Vaciar la tabla</button>
       <button class="act" id="copy" type="button">Copiar resumen del caso</button>
     </div>
   </div>
@@ -289,232 +117,7 @@ body.locked .wrap{display:none}
 
 </div>
 
-<script>
-(function(){
-"use strict";
-var TERMS=[3,4,5,6,7,8,9,10];
-var AC0={3:2.33,4:2.00,5:1.80,6:1.53,7:1.34,8:1.20,9:1.09,10:1.00};
-var AC100={3:0.67,4:0.50,5:0.40,6:0.34,7:0.30,8:0.26,9:0.23,10:0.21};
-var SACS=[0,10,20,30,40,50,60,70,80,90,100];
-var MATRIX={0:[2.33,2.00,1.80,1.53,1.34,1.20,1.09,1.00],10:[2.16,1.85,1.66,1.41,1.24,1.11,1.00,0.92],
-20:[2.00,1.70,1.52,1.29,1.13,1.01,0.92,0.84],30:[1.83,1.55,1.38,1.17,1.03,0.92,0.83,0.76],
-40:[1.67,1.40,1.24,1.06,0.92,0.82,0.75,0.68],50:[1.50,1.25,1.10,0.94,0.82,0.73,0.66,0.60],
-60:[1.33,1.10,0.96,0.82,0.71,0.63,0.58,0.53],70:[1.17,0.95,0.82,0.70,0.61,0.54,0.49,0.45],
-80:[1.00,0.80,0.68,0.58,0.50,0.45,0.40,0.37],90:[0.83,0.65,0.54,0.46,0.40,0.36,0.32,0.29],
-100:[0.67,0.50,0.40,0.34,0.30,0.26,0.23,0.21]};
-var LEVELS=[1,2,3,4,5,6,7,8,9,10,11,12,13,14];
-
-function endSlope(h0,h1,d0,d1){var m=((2*h0+h1)*d0-h0*d1)/(h0+h1);
-  if(m*d0<=0)m=0; else if(d0*d1<=0&&Math.abs(m)>Math.abs(3*d0))m=3*d0; return m;}
-function pchip(xs,ys){var n=xs.length,h=[],d=[],i;
-  for(i=0;i<n-1;i++){h[i]=xs[i+1]-xs[i];d[i]=(ys[i+1]-ys[i])/h[i];}
-  var m=new Array(n);
-  m[0]=endSlope(h[0],h[1],d[0],d[1]);
-  m[n-1]=endSlope(h[n-2],h[n-3],d[n-2],d[n-3]);
-  for(i=1;i<n-1;i++){ if(d[i-1]*d[i]<=0){m[i]=0;} else {
-    var w1=2*h[i]+h[i-1],w2=h[i]+2*h[i-1]; m[i]=(w1+w2)/(w1/d[i-1]+w2/d[i]); } }
-  return function(x){var k=n-2,j;
-    for(j=0;j<n-1;j++){if(x<=xs[j+1]){k=j;break;}}
-    if(x<xs[0])k=0;
-    var t=(x-xs[k])/h[k],t2=t*t,t3=t2*t;
-    return (2*t3-3*t2+1)*ys[k]+(t3-2*t2+t)*h[k]*m[k]+(-2*t3+3*t2)*ys[k+1]+(t3-t2)*h[k]*m[k+1];};}
-
-var order=[10,9,8,7,6,5,4,3];
-var xs=order.map(function(t){return 1/t;});
-var f0=pchip(xs,order.map(function(t){return AC0[t];}));
-var f100=pchip(xs,order.map(function(t){return AC100[t];}));
-function ac0(T){return f0(1/T);} function ac100(T){return f100(1/T);}
-function acOf(T,s){var a=ac0(T);return a+(ac100(T)-a)*s/100;}
-function sacFromAc(T,v){var a=ac0(T),b=ac100(T);return (a-v)/(a-b)*100;}
-
-var DEF_LVL={};LEVELS.forEach(function(l){DEF_LVL[l]="";});
-var cfg={lvl:Object.assign({},DEF_LVL)};
-try{var raw=localStorage.getItem("ita-ilus-cfg-v3");if(raw){var p=JSON.parse(raw);
-  if(p&&p.lvl)cfg.lvl=Object.assign({},DEF_LVL,p.lvl);}}catch(e){}
-function saveCfg(){try{localStorage.setItem("ita-ilus-cfg-v3",JSON.stringify(cfg));}catch(e){}}
-
-function lvlPct(nivel){var v=parseFloat(cfg.lvl[nivel]);return isFinite(v)?v:null;}
-// Comisión upfront = Admin charge sin sacrificio × Prima × Años × % del nivel
-function comMaxOf(prima,T,nivel){var q=lvlPct(nivel);
-  return q===null?null:(ac0(T)/100)*prima*T*(q/100);}
-
-var PRIMA_MIN=75000,PRIMA_MAX=100000000;
-var st={prima:100000,T:10,nivel:1,s:0},primaOk=true;
-var $=function(id){return document.getElementById(id);};
-var fmtM=new Intl.NumberFormat("es-UY",{style:"currency",currency:"USD",maximumFractionDigits:0});
-var fmtM2=new Intl.NumberFormat("es-UY",{maximumFractionDigits:0});
-function pct(v,d){return v.toFixed(d==null?2:d).replace(".",",");}
-
-var selN=$("nivel");
-LEVELS.forEach(function(l){var o=document.createElement("option");o.value=l;o.textContent="Nivel "+l;selN.appendChild(o);});
-selN.value=1;
-
-function buildCfgUI(){
-  var cl=$("cfgLvl");cl.innerHTML="";
-  LEVELS.forEach(function(k){var l=document.createElement("label");
-    l.innerHTML="<span>Nivel "+k+"</span>";
-    var i=document.createElement("input");i.type="number";i.step="0.01";i.placeholder="—";i.value=cfg.lvl[k];
-    i.addEventListener("input",function(){cfg.lvl[k]=i.value;saveCfg();render();});
-    var row=document.createElement("div");row.className="pcrow";
-    var pc=document.createElement("span");pc.className="pc";pc.textContent="%";
-    row.appendChild(i);row.appendChild(pc);
-    l.appendChild(row);cl.appendChild(l);});
-}
-
-function buildMatrix(){
-  var t=$("mtx"),h="<thead><tr><th style='text-align:left'>Sacrificio</th>";
-  TERMS.forEach(function(T){h+="<th data-t='"+T+"'>"+T+" años</th>";});
-  h+="</tr></thead><tbody>";
-  SACS.forEach(function(s){h+="<tr data-s='"+s+"'><th>"+s+"%</th>";
-    MATRIX[s].forEach(function(v,i){h+="<td data-s='"+s+"' data-t='"+TERMS[i]+"'>"+pct(v)+"%</td>";});
-    h+="</tr>";});
-  t.innerHTML=h+"</tbody>";
-}
-
-var W=960,H=380,PL=58,PR=100,PT=36,PB=46;
-var X0=3,X1=10,Y0=0,Y1=2.5;
-function px(T){return PL+(T-X0)/(X1-X0)*(W-PL-PR);}
-function py(v){return H-PB-(v-Y0)/(Y1-Y0)*(H-PT-PB);}
-function path(fn){var d="",T;
-  for(var k=0;k<=140;k++){T=X0+(X1-X0)*k/140;d+=(k?"L":"M")+px(T).toFixed(2)+" "+py(fn(T)).toFixed(2);}
-  return d;}
-
-function drawChart(){
-  var s=st.s,T=st.T,v=acOf(T,s),g="";
-  g+="<g>";
-  for(var y=0;y<=2.5001;y+=0.5){
-    g+="<line x1='"+PL+"' y1='"+py(y).toFixed(1)+"' x2='"+(W-PR)+"' y2='"+py(y).toFixed(1)+"' stroke='var(--line)' stroke-width='1'/>";
-    g+="<text class='ax' x='"+(PL-10)+"' y='"+(py(y)+3.5).toFixed(1)+"' text-anchor='end'>"+pct(y,1)+"%</text>";}
-  TERMS.forEach(function(t){
-    g+="<text class='ax' x='"+px(t).toFixed(1)+"' y='"+(H-PB+18)+"' text-anchor='middle'>"+t+"</text>";});
-  g+="<text class='axname' x='"+PL+"' y='"+(H-6)+"'>Término (años)</text>";
-  g+="<text class='axname' x='"+(PL-46)+"' y='16'>Admin charge (% anual)</text>";
-  g+="</g>";
-  var env=path(function(t){return ac0(t);}),k2;
-  for(k2=140;k2>=0;k2--){var tt2=X0+(X1-X0)*k2/140;env+="L"+px(tt2).toFixed(2)+" "+py(ac100(tt2)).toFixed(2);}
-  g+="<path d='"+env+"Z' fill='var(--teal)' fill-opacity='.05' stroke='none'/>";
-  SACS.forEach(function(q){ if(Math.abs(q-s)<0.5) return;
-    g+="<path d='"+path(function(t){return acOf(t,q);})+"' fill='none' stroke='var(--teal)' stroke-opacity='.2' stroke-width='1'/>";});
-  g+="<text class='dirlab' x='"+(W-PR+8)+"' y='"+(py(ac0(10))+3.5).toFixed(1)+"'>s = 0%</text>";
-  g+="<text class='dirlab' x='"+(W-PR+8)+"' y='"+(py(ac100(10))+3.5).toFixed(1)+"'>s = 100%</text>";
-  g+="<path d='"+path(function(t){return acOf(t,s);})+"' fill='none' stroke='var(--teal)' stroke-width='2.5' stroke-linecap='round'/>";
-  g+="<line id='cross' x1='0' y1='"+PT+"' x2='0' y2='"+(H-PB)+"' stroke='var(--line-strong)' stroke-width='1' stroke-dasharray='3 3' opacity='0'/>";
-  g+="<circle cx='"+px(T).toFixed(2)+"' cy='"+py(v).toFixed(2)+"' r='7' fill='var(--teal)' stroke='var(--surface)' stroke-width='2.5'/>";
-  var lx=px(T), anchor=lx>W-PR-70?"end":"start", ox=anchor==="end"?-13:13;
-  g+="<text class='dirlab' style='font-weight:600' x='"+(lx+ox).toFixed(1)+"' y='"+(py(v)-12).toFixed(1)+"' text-anchor='"+anchor+"' fill='var(--teal)'>"+pct(v)+"%</text>";
-  g+="<rect id='hit' x='"+PL+"' y='"+PT+"' width='"+(W-PL-PR)+"' height='"+(H-PT-PB)+"' fill='transparent' style='cursor:crosshair'/>";
-  $("chart").innerHTML=g;
-  wireChart();
-}
-
-function wireChart(){
-  var svg=$("chart"),hit=document.getElementById("hit"),cross=document.getElementById("cross"),tt=$("tt");
-  if(!hit)return;
-  function tAt(ev){var r=svg.getBoundingClientRect(),sx=(ev.clientX-r.left)/r.width*W;
-    return Math.min(X1,Math.max(X0,X0+(sx-PL)/(W-PL-PR)*(X1-X0)));}
-  hit.addEventListener("mousemove",function(ev){
-    var T=tAt(ev),v=acOf(T,st.s),cx=comMaxOf(st.prima,T,st.nivel),cm=cx===null?null:cx*(1-st.s/100);
-    cross.setAttribute("x1",px(T));cross.setAttribute("x2",px(T));cross.setAttribute("opacity","1");
-    tt.innerHTML="<b>"+pct(v)+"%</b> admin charge<br>"+pct(T,2)+" años · sacrificio "+st.s+"%"+((primaOk&&cm!==null)?"<br>comisión "+fmtM.format(cm):"");
-    var r=svg.getBoundingClientRect(),wr=$("chartWrap").getBoundingClientRect();
-    var lx=r.left-wr.left+px(T)/W*r.width, ly=r.top-wr.top+py(v)/H*r.height;
-    tt.style.opacity="1";
-    tt.style.left=Math.min(Math.max(6,lx-tt.offsetWidth/2),wr.width-tt.offsetWidth-6)+"px";
-    tt.style.top=(ly-tt.offsetHeight-16)+"px";});
-  hit.addEventListener("mouseleave",function(){cross.setAttribute("opacity","0");tt.style.opacity="0";});
-  hit.addEventListener("click",function(ev){setT(Math.round(tAt(ev)*4)/4);});
-}
-
-function highlight(){
-  var nt=TERMS.reduce(function(a,b){return Math.abs(b-st.T)<Math.abs(a-st.T)?b:a;});
-  var ns=Math.round(st.s/10)*10;
-  Array.prototype.forEach.call(document.querySelectorAll("#mtx td"),function(c){c.classList.remove("hot");});
-  Array.prototype.forEach.call(document.querySelectorAll("#mtx tr"),function(r){r.classList.remove("rowhot");});
-  Array.prototype.forEach.call(document.querySelectorAll("#mtx th[data-t]"),function(c){c.classList.remove("colhot");});
-  var row=document.querySelector("#mtx tr[data-s='"+ns+"']");if(row)row.classList.add("rowhot");
-  var cell=document.querySelector("#mtx td[data-s='"+ns+"'][data-t='"+nt+"']");if(cell)cell.classList.add("hot");
-  var head=document.querySelector("#mtx th[data-t='"+nt+"']");if(head)head.classList.add("colhot");
-}
-
-var lock=false;
-function checkPrima(){
-  var el=$("prima"),msg=$("primaErr"),v=st.prima;
-  primaOk = !(isFinite(v)===false) && v>=PRIMA_MIN && v<=PRIMA_MAX;
-  if(primaOk){ el.classList.remove("bad"); msg.classList.remove("on"); msg.textContent=""; }
-  else{
-    el.classList.add("bad"); msg.classList.add("on");
-    msg.textContent = (v<PRIMA_MIN)
-      ? "Prima por debajo del mínimo. El rango admitido es "+fmtM.format(PRIMA_MIN)+" a "+fmtM.format(PRIMA_MAX)+"."
-      : "Prima por encima del máximo. El rango admitido es "+fmtM.format(PRIMA_MIN)+" a "+fmtM.format(PRIMA_MAX)+".";
-  }
-  return primaOk;
-}
-
-function render(){
-  lock=true;
-  var T=st.T,s=st.s;
-  var a=ac0(T),b=ac100(T),v=acOf(T,s);
-  var cmax=comMaxOf(st.prima,T,st.nivel);
-  var hasCom=primaOk&&cmax!==null, c=hasCom?cmax*(1-s/100):0;
-  $("termN").value=T; $("termR").value=T;
-  $("termEcho").textContent=(T%1===0?T:pct(T,2))+" años";
-  $("sac").value=Math.round(s*10)/10; $("sacR").value=s;
-  if(hasCom){ $("com").value=Math.round(c); $("com").disabled=false; }
-  else { $("com").value=""; $("com").disabled=true; }
-  $("ac").value=+v.toFixed(3);
-  $("comMax").textContent = hasCom
-    ? ("Máximo a "+(T%1===0?T:pct(T,2))+" años, nivel "+st.nivel+": "+fmtM.format(cmax))
-    : (primaOk ? "Falta cargar el % del nivel "+st.nivel+" abajo." : "Sin cálculo hasta corregir la prima.");
-  $("acBps").textContent=Math.round(v*100)+" pb anuales · rango "+pct(b)+"–"+pct(a)+"%";
-  $("curveEcho").textContent=Math.round(s)+"%";
-  var dAc=(a-b)*0.10, dCom=hasCom?cmax*0.10:0;
-  $("d10ac").textContent="−"+pct(dAc)+" pp ("+Math.round(dAc*100)+" pb)";
-  $("d10com").textContent=hasCom?("−"+fmtM.format(dCom)):"—";
-  $("d10r").textContent=hasCom?(fmtM2.format(Math.round(dCom/(dAc*100)))+" USD"):"—";
-  drawChart(); highlight();
-  lock=false;
-}
-function setS(v){st.s=Math.min(100,Math.max(0,v));render();}
-function setT(v){st.T=Math.min(10,Math.max(3,v));render();}
-
-$("termN").addEventListener("input",function(){if(!lock&&this.value!=="")setT(parseFloat(this.value));});
-$("termR").addEventListener("input",function(){if(!lock)setT(parseFloat(this.value));});
-$("prima").addEventListener("input",function(){if(lock)return;
-  st.prima=this.value===""?NaN:parseFloat(this.value); checkPrima(); render();});
-$("nivel").addEventListener("change",function(){st.nivel=parseInt(this.value,10);render();});
-$("sac").addEventListener("input",function(){if(!lock&&this.value!=="")setS(parseFloat(this.value));});
-$("sacR").addEventListener("input",function(){if(!lock)setS(parseFloat(this.value));});
-$("com").addEventListener("input",function(){if(lock||!primaOk||this.value==="")return;
-  var cmax=comMaxOf(st.prima,st.T,st.nivel); if(!cmax)return;
-  setS(100*(1-parseFloat(this.value)/cmax));});
-$("ac").addEventListener("input",function(){if(lock||this.value==="")return;
-  setS(sacFromAc(st.T,parseFloat(this.value)));});
-$("reset").addEventListener("click",function(){cfg.lvl=Object.assign({},DEF_LVL);
-  saveCfg();buildCfgUI();render();});
-var ORIG=[85,80,75,70,65,60,55,50,45,35,30,25,20,15];
-$("preset").addEventListener("click",function(){LEVELS.forEach(function(l,i){cfg.lvl[l]=ORIG[i];});
-  saveCfg();buildCfgUI();render();});
-$("copy").addEventListener("click",function(){
-  var T=st.T,cmax=comMaxOf(st.prima,T,st.nivel);
-  var txt="Prima "+fmtM.format(st.prima)+" · término "+T+" años · nivel "+st.nivel+
-    " · sacrificio "+Math.round(st.s)+"%"+
-    (cmax===null?"":" → comisión "+fmtM.format(cmax*(1-st.s/100)))+
-    " · admin charge "+pct(acOf(T,st.s))+"% anual";
-  var b=this;
-  if(!primaOk) txt="Prima fuera del rango admitido · término "+T+" años · sacrificio "+Math.round(st.s)+
-    "% → admin charge "+pct(acOf(T,st.s))+"% anual";
-  if(navigator.clipboard){navigator.clipboard.writeText(txt).then(function(){
-    b.textContent="Copiado";setTimeout(function(){b.textContent="Copiar resumen del caso";},1600);});}
-});
-$("theme").addEventListener("click",function(){
-  var r=document.documentElement, cur=r.getAttribute("data-theme");
-  var dark=cur?cur==="dark":window.matchMedia("(prefers-color-scheme: dark)").matches;
-  r.setAttribute("data-theme",dark?"light":"dark"); drawChart();});
-
-buildCfgUI(); buildMatrix(); checkPrima(); render();
-window.addEventListener("resize",function(){drawChart();});
-})();
-</script>
-
+<script src="assets/data.js"></script>
+<script src="assets/app.js"></script>
 </body>
 </html>
