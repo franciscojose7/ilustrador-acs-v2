@@ -20,7 +20,7 @@
         try{sessionStorage.setItem("acsOk","1")}catch(_){}
         abrir();
       }else{
-        document.getElementById("gateErr").textContent="Contraseña incorrecta";
+        document.getElementById("gateErr").textContent="Wrong password";
         inp.value="";
       }
     });

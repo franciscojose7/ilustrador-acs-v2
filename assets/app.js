@@ -42,31 +42,31 @@ function comMaxOf(prima,T,nivel){var q=comPctOf(T,nivel);
 /* ── Estado y formato ───────────────────────────────────────────────── */
 var st={prima:100000,T:10,nivel:ACS.DEFAULT_LEVEL,s:0},primaOk=true;
 var $=function(id){return document.getElementById(id);};
-var fmtM=new Intl.NumberFormat("es-UY",{style:"currency",currency:"USD",maximumFractionDigits:0});
-var fmtM2=new Intl.NumberFormat("es-UY",{maximumFractionDigits:0});
-function pct(v,d){return v.toFixed(d==null?2:d).replace(".",",");}
+var fmtM=new Intl.NumberFormat("en-US",{style:"currency",currency:"USD",maximumFractionDigits:0});
+var fmtM2=new Intl.NumberFormat("en-US",{maximumFractionDigits:0});
+function pct(v,d){return v.toFixed(d==null?2:d);}
 function pctLvl(v){return pct(v,v%1?1:0);}
 
 var selN=$("nivel");
 LEVELS.forEach(function(L){var o=document.createElement("option");
-  o.value=L.n;o.textContent="Nivel "+L.n+" · "+pctLvl(L.pct)+"%";selN.appendChild(o);});
+  o.value=L.n;o.textContent="Level "+L.n+" · "+pctLvl(L.pct)+"%";selN.appendChild(o);});
 selN.value=st.nivel;
 
 /* ── Tablas ─────────────────────────────────────────────────────────── */
 function buildLevels(){
-  var h="<thead><tr><th class='lft'>Nivel</th><th>%</th>";
+  var h="<thead><tr><th class='lft'>Level</th><th>%</th>";
   COM_TERMS.forEach(function(T){h+="<th>ACS "+T+"Y</th>";});
   h+="</tr></thead><tbody>";
   LEVELS.forEach(function(L){
-    h+="<tr data-n='"+L.n+"'><th class='lft'>Nivel "+L.n+"</th><td>"+pctLvl(L.pct)+"</td>";
+    h+="<tr data-n='"+L.n+"'><th class='lft'>Level "+L.n+"</th><td>"+pctLvl(L.pct)+"</td>";
     L.acs.forEach(function(v){h+="<td>"+pct(v)+"%</td>";});
     h+="</tr>";});
   $("lvls").innerHTML=h+"</tbody>";
 }
 
 function buildMatrix(){
-  var h="<thead><tr><th class='lft'>Sacrificio</th>";
-  TERMS.forEach(function(T){h+="<th data-t='"+T+"'>"+T+" años</th>";});
+  var h="<thead><tr><th class='lft'>Sacrifice</th>";
+  TERMS.forEach(function(T){h+="<th data-t='"+T+"'>"+T+" yrs</th>";});
   h+="</tr></thead><tbody>";
   SACS.forEach(function(s){h+="<tr data-s='"+s+"'><th>"+s+"%</th>";
     MATRIX[s].forEach(function(v,i){h+="<td data-s='"+s+"' data-t='"+TERMS[i]+"'>"+pct(v)+"%</td>";});
@@ -91,8 +91,8 @@ function drawChart(){
     g+="<text class='ax' x='"+(PL-10)+"' y='"+(py(y)+3.5).toFixed(1)+"' text-anchor='end'>"+pct(y,1)+"%</text>";}
   TERMS.forEach(function(t){
     g+="<text class='ax' x='"+px(t).toFixed(1)+"' y='"+(H-PB+18)+"' text-anchor='middle'>"+t+"</text>";});
-  g+="<text class='axname' x='"+PL+"' y='"+(H-6)+"'>Término (años)</text>";
-  g+="<text class='axname' x='"+(PL-46)+"' y='16'>Admin charge (% anual)</text>";
+  g+="<text class='axname' x='"+PL+"' y='"+(H-6)+"'>Term (years)</text>";
+  g+="<text class='axname' x='"+(PL-46)+"' y='16'>Admin charge (% p.a.)</text>";
   g+="</g>";
   var env=path(function(t){return ac0(t);}),k2;
   for(k2=140;k2>=0;k2--){var tt2=X0+(X1-X0)*k2/140;env+="L"+px(tt2).toFixed(2)+" "+py(ac100(tt2)).toFixed(2);}
@@ -119,7 +119,7 @@ function wireChart(){
   hit.addEventListener("mousemove",function(ev){
     var T=tAt(ev),v=acOf(T,st.s),cx=comMaxOf(st.prima,T,st.nivel),cm=cx===null?null:cx*(1-st.s/100);
     cross.setAttribute("x1",px(T));cross.setAttribute("x2",px(T));cross.setAttribute("opacity","1");
-    tt.innerHTML="<b>"+pct(v)+"%</b> admin charge<br>"+pct(T,2)+" años · sacrificio "+st.s+"%"+((primaOk&&cm!==null)?"<br>comisión "+fmtM.format(cm):"");
+    tt.innerHTML="<b>"+pct(v)+"%</b> admin charge<br>"+pct(T,2)+" years · sacrifice "+st.s+"%"+((primaOk&&cm!==null)?"<br>commission "+fmtM.format(cm):"");
     var r=svg.getBoundingClientRect(),wr=$("chartWrap").getBoundingClientRect();
     var lx=r.left-wr.left+px(T)/W*r.width, ly=r.top-wr.top+py(v)/H*r.height;
     tt.style.opacity="1";
@@ -150,8 +150,8 @@ function checkPrima(){
   else{
     el.classList.add("bad"); msg.classList.add("on");
     msg.textContent = (v<PRIMA_MIN)
-      ? "Prima por debajo del mínimo. El rango admitido es "+fmtM.format(PRIMA_MIN)+" a "+fmtM.format(PRIMA_MAX)+"."
-      : "Prima por encima del máximo. El rango admitido es "+fmtM.format(PRIMA_MIN)+" a "+fmtM.format(PRIMA_MAX)+".";
+      ? "Premium below the minimum. The accepted range is "+fmtM.format(PRIMA_MIN)+" to "+fmtM.format(PRIMA_MAX)+"."
+      : "Premium above the maximum. The accepted range is "+fmtM.format(PRIMA_MIN)+" to "+fmtM.format(PRIMA_MAX)+".";
   }
   return primaOk;
 }
@@ -163,18 +163,18 @@ function render(){
   var q=comPctOf(T,st.nivel), cmax=comMaxOf(st.prima,T,st.nivel);
   var hasCom=primaOk&&cmax!==null, c=hasCom?cmax*(1-s/100):0;
   $("termN").value=T; $("termR").value=T;
-  $("termEcho").textContent=(T%1===0?T:pct(T,2))+" años";
+  $("termEcho").textContent=(T%1===0?T:pct(T,2))+" years";
   $("sac").value=Math.round(s*10)/10; $("sacR").value=s;
   if(hasCom){ $("com").value=Math.round(c); $("com").disabled=false; }
   else { $("com").value=""; $("com").disabled=true; }
   $("ac").value=+v.toFixed(3);
   $("comMax").textContent = hasCom
-    ? ("Máximo a "+(T%1===0?T:pct(T,2))+" años, nivel "+st.nivel+": "+fmtM.format(cmax)+" · "+pct(q)+"% de la prima")
-    : "Sin cálculo hasta corregir la prima.";
-  $("acBps").textContent=Math.round(v*100)+" pb anuales · rango "+pct(b)+"–"+pct(a)+"%";
+    ? ("Max at "+(T%1===0?T:pct(T,2))+" years, level "+st.nivel+": "+fmtM.format(cmax)+" · "+pct(q)+"% of premium")
+    : "No calculation until the premium is fixed.";
+  $("acBps").textContent=Math.round(v*100)+" bps p.a. · range "+pct(b)+"–"+pct(a)+"%";
   $("curveEcho").textContent=Math.round(s)+"%";
   var dAc=(a-b)*0.10, dCom=hasCom?cmax*0.10:0;
-  $("d10ac").textContent="−"+pct(dAc)+" pp ("+Math.round(dAc*100)+" pb)";
+  $("d10ac").textContent="−"+pct(dAc)+" pp ("+Math.round(dAc*100)+" bps)";
   $("d10com").textContent=hasCom?("−"+fmtM.format(dCom)):"—";
   $("d10r").textContent=hasCom?(fmtM2.format(Math.round(dCom/(dAc*100)))+" USD"):"—";
   drawChart(); highlight();
@@ -198,15 +198,15 @@ $("ac").addEventListener("input",function(){if(lock||this.value==="")return;
   setS(sacFromAc(st.T,parseFloat(this.value)));});
 $("copy").addEventListener("click",function(){
   var T=st.T,cmax=comMaxOf(st.prima,T,st.nivel);
-  var txt="Prima "+fmtM.format(st.prima)+" · término "+T+" años · nivel "+st.nivel+
-    " · sacrificio "+Math.round(st.s)+"%"+
-    (cmax===null?"":" → comisión "+fmtM.format(cmax*(1-st.s/100)))+
-    " · admin charge "+pct(acOf(T,st.s))+"% anual";
+  var txt="Premium "+fmtM.format(st.prima)+" · term "+T+" years · level "+st.nivel+
+    " · sacrifice "+Math.round(st.s)+"%"+
+    (cmax===null?"":" → commission "+fmtM.format(cmax*(1-st.s/100)))+
+    " · admin charge "+pct(acOf(T,st.s))+"% p.a.";
   var b=this;
-  if(!primaOk) txt="Prima fuera del rango admitido · término "+T+" años · sacrificio "+Math.round(st.s)+
-    "% → admin charge "+pct(acOf(T,st.s))+"% anual";
+  if(!primaOk) txt="Premium outside the accepted range · term "+T+" years · sacrifice "+Math.round(st.s)+
+    "% → admin charge "+pct(acOf(T,st.s))+"% p.a.";
   if(navigator.clipboard){navigator.clipboard.writeText(txt).then(function(){
-    b.textContent="Copiado";setTimeout(function(){b.textContent="Copiar resumen del caso";},1600);});}
+    b.textContent="Copied";setTimeout(function(){b.textContent="Copy case summary";},1600);});}
 });
 $("theme").addEventListener("click",function(){
   var r=document.documentElement, cur=r.getAttribute("data-theme");

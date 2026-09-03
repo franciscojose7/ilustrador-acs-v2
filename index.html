@@ -1,10 +1,10 @@
 <!doctype html>
-<html lang="es">
+<html lang="en">
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
 <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>&#128201;</text></svg>">
-<title>ACS: Sacrificio y Admin Charge</title>
+<title>ACS: Commission Sacrifice &amp; Admin Charge</title>
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Newsreader:opsz,wght@6..72,400;6..72,500;6..72,600&family=IBM+Plex+Sans:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500;600&display=swap">
 <link rel="stylesheet" href="assets/styles.css">
 <style>body.locked .wrap{display:none}</style>
@@ -14,10 +14,10 @@
 <!-- ==== Acceso (ver assets/gate.js) ==== -->
 <div id="gate">
   <form id="gateForm">
-    <div class="eyebrow">Acceso restringido</div>
-    <h2>ACS: Sacrificio y Admin Charge</h2>
-    <input type="password" id="gatePass" placeholder="Contraseña" autocomplete="current-password">
-    <button type="submit">Entrar</button>
+    <div class="eyebrow">Restricted access</div>
+    <h2>ACS: Commission Sacrifice &amp; Admin Charge</h2>
+    <input type="password" id="gatePass" placeholder="Password" autocomplete="current-password">
+    <button type="submit">Enter</button>
     <span class="err" id="gateErr"></span>
   </form>
 </div>
@@ -26,91 +26,91 @@
 <div class="wrap">
 <header>
   <div class="hgroup">
-    <div class="eyebrow">Vamo el bolso &middot; Taquito</div>
-    <h1>ACS: Sacrificio y Admin Charge</h1>
+    <div class="eyebrow">Upfront Calculator &middot; DEMO</div>
+    <h1>ACS: Commission Sacrifice &amp; Admin Charge</h1>
   </div>
-  <button class="themebtn" id="theme" type="button">Claro/Oscuro</button>
+  <button class="themebtn" id="theme" type="button">Light/Dark</button>
 </header>
 
 <section class="panel board">
   <div class="brow in">
     <div class="bcell">
-      <span class="f-lab">Prima (USD)</span>
+      <span class="f-lab">Premium (USD/EUR/GBP)</span>
       <input type="number" id="prima" value="100000" step="1000">
       <span class="err" id="primaErr"></span>
     </div>
     <div class="bcell">
-      <span class="f-lab">Término <em id="termEcho">10 años</em></span>
+      <span class="f-lab">Term <em id="termEcho">10 years</em></span>
       <div class="rail"><input type="number" id="termN" value="10" min="3" max="10" step="0.25">
         <input type="range" id="termR" value="10" min="3" max="10" step="0.25"></div>
     </div>
     <div class="bcell">
-      <span class="f-lab">Nivel de comisión</span>
+      <span class="f-lab">Commission Level</span>
       <select id="nivel"></select>
     </div>
   </div>
 
-  <div class="bdiv"><span>Los tres se mueven juntos &mdash; edita cualquiera y los otros dos se recalculan</span></div>
+  <div class="bdiv"><span>The three move together &mdash; edit any and the other two will recalculate</span></div>
 
   <div class="brow out">
     <div class="bcell">
-      <span class="f-lab">Sacrificio de comisión</span>
+      <span class="f-lab">Commission Sacrifice</span>
       <div class="fieldrow"><input class="big" type="number" id="sac" value="0" min="0" max="100" step="1"><span class="unit">%</span></div>
       <input type="range" id="sacR" value="0" min="0" max="100" step="1">
     </div>
     <div class="bcell">
-      <span class="f-lab">Comisión upfront asesor</span>
+      <span class="f-lab">Advisor Upfront Commission</span>
       <div class="fieldrow"><span class="unit">USD</span><input class="big amberv" type="number" id="com" step="100"></div>
       <div class="unit" id="comMax"></div>
     </div>
     <div class="bcell">
       <span class="f-lab">Admin charge</span>
-      <div class="fieldrow"><input class="big tealv" type="number" id="ac" step="0.01"><span class="unit">% anual</span></div>
+      <div class="fieldrow"><input class="big tealv" type="number" id="ac" step="0.01"><span class="unit">% p.a.</span></div>
       <div class="unit" id="acBps"></div>
     </div>
   </div>
 
   <div class="bfoot">
-    <span class="to-lab">Cada 10 pp de sacrificio, a este término</span>
+    <span class="to-lab">Every 10 pp of sacrifice, at this term</span>
     <span class="to-item">Admin charge <b id="d10ac"></b></span>
-    <span class="to-item">Comisión <b id="d10com"></b></span>
-    <span class="to-item">Ratio <b id="d10r"></b> por cada 1 pb ahorrado</span>
+    <span class="to-item">Commission <b id="d10com"></b></span>
+    <span class="to-item">Ratio <b id="d10r"></b> per 1 bp saved</span>
   </div>
 </section>
 
 <section class="panel chartcard">
   <div class="chart-h">
-    <div><div class="panel-t">Admin charge según término</div>
-      <div class="panel-s">Curva activa: sacrificio <span id="curveEcho">0%</span>. Las líneas de fondo son los otros niveles. Clic para fijar el término.</div></div>
+    <div><div class="panel-t">Admin charge by term</div>
+      <div class="panel-s">Active curve: sacrifice <span id="curveEcho">0%</span>. The faint lines are the other sacrifice levels. Click to set the term.</div></div>
   </div>
   <div style="position:relative;padding:0 18px 16px" id="chartWrap">
-    <svg id="chart" viewBox="0 0 960 380" role="img" aria-label="Admin charge anual según término, para cada nivel de sacrificio de comisión"></svg>
+    <svg id="chart" viewBox="0 0 960 380" role="img" aria-label="Annual admin charge by term, for each commission sacrifice level"></svg>
     <div class="tt" id="tt"></div>
   </div>
 </section>
 
 <section class="panel">
-  <div class="panel-h"><div class="panel-t">Escala de comisión de la estructura</div>
-    <div class="panel-s">Fija. ACS = comisión upfront máxima (sacrificio 0%) en % de la prima. La fila resaltada es el nivel elegido; entre 3, 5, 8 y 10 años se interpola.</div></div>
+  <div class="panel-h"><div class="panel-t">Structure commission scale</div>
+    <div class="panel-s">Fixed. ACS = maximum upfront commission (0% sacrifice) as a % of premium. The highlighted row is the selected level; terms between 3, 5, 8 and 10 years are interpolated.</div></div>
   <div class="tscroll"><table id="lvls"></table></div>
 </section>
 
 <section class="panel matrixcard">
-  <div class="panel-h"><div class="panel-t">Matriz publicada</div>
-    <div class="panel-s">Admin charge (%) por sacrificio y término. La celda resaltada es la más cercana al caso actual.</div></div>
+  <div class="panel-h"><div class="panel-t">Published matrix</div>
+    <div class="panel-s">Admin charge (%) by sacrifice and term. The highlighted cell is the closest to the current case.</div></div>
   <div class="tscroll"><table id="mtx"></table></div>
 </section>
 
 <details>
-  <summary>Cómo se calcula</summary>
+  <summary>How it is calculated</summary>
   <div class="cfg">
     <div class="note">
-      Comisión upfront = ACS del nivel al término elegido &times; Prima &times; (1 &minus; Sacrificio%).<br>
-      Admin charge = interpolación entre la fila de 0% y la de 100% de sacrificio de la matriz publicada.<br>
-      Las tres tablas (admin charge, matriz y escala de comisión) viven en <b>assets/data.js</b>.
+      Upfront commission = level's ACS at the chosen term &times; Premium &times; (1 &minus; Sacrifice%).<br>
+      Admin charge = interpolation between the 0% and the 100% sacrifice rows of the published matrix.<br>
+      All three tables (admin charge, matrix and commission scale) live in <b>assets/data.js</b>.
     </div>
     <div class="acts">
-      <button class="act" id="copy" type="button">Copiar resumen del caso</button>
+      <button class="act" id="copy" type="button">Copy case summary</button>
     </div>
   </div>
 </details>
