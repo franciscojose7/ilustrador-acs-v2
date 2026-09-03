@@ -47,6 +47,9 @@ var fmtM=new Intl.NumberFormat("en-US",{style:"currency",currency:"USD",maximumF
 var fmtM2=new Intl.NumberFormat("en-US",{maximumFractionDigits:0});
 function pct(v,d){return v.toFixed(d==null?2:d);}
 function pctLvl(v){return pct(v,v%1?1:0);}
+/* El sacrificio admite 2 decimales: se muestran solo si el valor los tiene. */
+function sacN(v){return Math.round(v*100)/100;}
+function sacTxt(v){var r=sacN(v);return r%1?r.toFixed(2):String(r);}
 
 var selN=$("nivel");
 LEVELS.forEach(function(L){var o=document.createElement("option");
@@ -120,7 +123,7 @@ function wireChart(){
   hit.addEventListener("mousemove",function(ev){
     var T=tAt(ev),v=acOf(T,st.s),cx=comMaxOf(st.prima,T,st.nivel),cm=cx===null?null:cx*(1-st.s/100);
     cross.setAttribute("x1",px(T));cross.setAttribute("x2",px(T));cross.setAttribute("opacity","1");
-    tt.innerHTML="<b>"+pct(v)+"%</b> admin charge<br>"+pct(T,2)+" years · sacrifice "+st.s+"%"+((primaOk&&cm!==null)?"<br>commission "+fmtM.format(cm):"");
+    tt.innerHTML="<b>"+pct(v)+"%</b> admin charge<br>"+pct(T,2)+" years · sacrifice "+sacTxt(st.s)+"%"+((primaOk&&cm!==null)?"<br>commission "+fmtM.format(cm):"");
     var r=svg.getBoundingClientRect(),wr=$("chartWrap").getBoundingClientRect();
     var lx=r.left-wr.left+px(T)/W*r.width, ly=r.top-wr.top+py(v)/H*r.height;
     tt.style.opacity="1";
@@ -165,7 +168,7 @@ function render(){
   var hasCom=primaOk&&cmax!==null, c=hasCom?cmax*(1-s/100):0;
   $("termN").value=T; $("termR").value=T;
   $("termEcho").textContent=(T%1===0?T:pct(T,2))+" years";
-  $("sac").value=Math.round(s*10)/10; $("sacR").value=s;
+  $("sac").value=sacN(s); $("sacR").value=s;
   if(hasCom){ $("com").value=Math.round(c); $("com").disabled=false; }
   else { $("com").value=""; $("com").disabled=true; }
   $("ac").value=+v.toFixed(3);
@@ -173,7 +176,7 @@ function render(){
     ? ("Max at "+(T%1===0?T:pct(T,2))+" years, level "+st.nivel+": "+fmtM.format(cmax)+" · "+pct(q)+"% of premium")
     : "No calculation until the premium is fixed.";
   $("acBps").textContent=Math.round(v*100)+" bps p.a. · range "+pct(b)+"–"+pct(a)+"%";
-  $("curveEcho").textContent=Math.round(s)+"%";
+  $("curveEcho").textContent=sacTxt(s)+"%";
   var dAc=(a-b)*0.10, dCom=hasCom?cmax*0.10:0;
   $("d10ac").textContent="−"+pct(dAc)+" pp ("+Math.round(dAc*100)+" bps)";
   $("d10com").textContent=hasCom?("−"+fmtM.format(dCom)):"—";
@@ -200,11 +203,11 @@ $("ac").addEventListener("input",function(){if(lock||this.value==="")return;
 $("copy").addEventListener("click",function(){
   var T=st.T,cmax=comMaxOf(st.prima,T,st.nivel);
   var txt="Premium "+fmtM.format(st.prima)+" · term "+T+" years · level "+st.nivel+
-    " · sacrifice "+Math.round(st.s)+"%"+
+    " · sacrifice "+sacTxt(st.s)+"%"+
     (cmax===null?"":" → commission "+fmtM.format(cmax*(1-st.s/100)))+
     " · admin charge "+pct(acOf(T,st.s))+"% p.a.";
   var b=this;
-  if(!primaOk) txt="Premium outside the accepted range · term "+T+" years · sacrifice "+Math.round(st.s)+
+  if(!primaOk) txt="Premium outside the accepted range · term "+T+" years · sacrifice "+sacTxt(st.s)+
     "% → admin charge "+pct(acOf(T,st.s))+"% p.a.";
   if(navigator.clipboard){navigator.clipboard.writeText(txt).then(function(){
     b.textContent="Copied";setTimeout(function(){b.textContent="Copy case summary";},1600);});}
