@@ -1,0 +1,6 @@
+# La tabla en claro. La copia que se versiona es assets/data.enc.js;
+# para reconstruir este archivo: ACS_PASS="clave" node tools/crypt.js decrypt
+data.src.json
+
+.env
+node_modules/

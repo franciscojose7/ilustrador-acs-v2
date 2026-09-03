@@ -3,32 +3,70 @@
 Página estática que muestra, para una prima y un término dados, cómo se mueven
 juntos el **sacrificio de comisión**, la **comisión upfront del asesor** y el
 **admin charge anual**. Se edita cualquiera de los tres y los otros dos se
-recalculan.
+recalculan. El front está en inglés; el código y esta documentación, en español.
 
-Publicada con GitHub Pages desde la raíz de `main`.
+Publicada con GitHub Pages desde la raíz de `main`:
+<https://franciscojose7.github.io/ilustrador-acs-v1/>
 
 ## Estructura
 
 ```
-index.html          markup de la página
-assets/styles.css   estilos (claro/oscuro)
-assets/data.js      TODOS los números publicados — es lo único que se toca
-assets/app.js       lógica: interpolación, cálculo y gráfico
-assets/gate.js      pantalla de contraseña
+index.html            markup de la página
+assets/styles.css     estilos (claro/oscuro)
+assets/app.js         lógica: interpolación, cálculo y gráfico
+assets/gate.js        pantalla de acceso: descifra la tabla
+assets/data.enc.js    la tabla, cifrada  ← esto es lo que se commitea
+data.src.json         la tabla en claro  ← NO se commitea (.gitignore)
+tools/crypt.js        cifra y descifra
 ```
 
-Sin build ni dependencias: se abre `index.html` y funciona (también con doble
-clic, sin servidor).
+Sin build ni dependencias más allá de Node para cifrar. **Se tiene que servir
+por HTTP**, no con doble clic: `crypto.subtle` no existe en `file://`. En local:
+
+```bash
+npx serve .          # y abrir http://localhost:3000
+```
+
+## La contraseña
+
+No está guardada en ninguna parte, ni siquiera hasheada: **es la clave con la
+que se descifra la tabla**. Se deriva con PBKDF2-SHA256 (310.000 iteraciones) y
+descifra `assets/data.enc.js` (AES-256-GCM). Si la clave es incorrecta el
+descifrado falla y no hay nada que mostrar — el repo y la página publicada solo
+tienen bytes cifrados.
+
+Cambiar la clave = volver a cifrar con otra:
+
+```bash
+ACS_PASS="la clave nueva" node tools/crypt.js encrypt
+git commit -am "rotar clave" && git push
+```
+
+Como la única copia versionada es la cifrada, la clave es lo único que no se
+puede perder: sin ella no hay forma de recuperar los números.
+
+> El repo es público, así que el archivo cifrado se puede descargar y atacar
+> offline. Los 310.000 rounds de PBKDF2 hacen que cada intento cueste, pero una
+> clave corta igual cae. Conviene una frase larga.
 
 ## Cambiar los números
 
-Todo vive en [`assets/data.js`](assets/data.js):
+Los números en claro viven en `data.src.json`, que está en `.gitignore`. Si no
+lo tenés en la máquina (clon nuevo, otra compu), se reconstruye desde la copia
+cifrada:
 
-| Constante | Qué es |
+```bash
+ACS_PASS="la clave" node tools/crypt.js decrypt     # -> data.src.json
+# editar data.src.json
+ACS_PASS="la clave" node tools/crypt.js encrypt     # -> assets/data.enc.js
+git commit -am "actualizar tabla" && git push
+```
+
+| Clave del JSON | Qué es |
 |---|---|
 | `AC0` / `AC100` | admin charge anual por término, con 0% y 100% de sacrificio |
 | `MATRIX` | matriz publicada de admin charge (sacrificio × término) |
-| `LEVELS` | escala de comisión de la estructura, fija |
+| `LEVELS` | escala de comisión de la estructura |
 | `DEFAULT_LEVEL` | nivel que viene seleccionado al abrir |
 | `PRIMA_MIN` / `PRIMA_MAX` | rango de prima admitido |
 
@@ -40,8 +78,8 @@ la comisión upfront máxima —sin sacrificio— como % de la prima, a **3, 5, 
 que en 3, 5, 8 y 10 los valores dan exactos y en el medio no hay saltos ni
 sobrepasos.
 
-```js
-{n:15, pct:85, acs:[5.00, 7.00, 7.50, 7.90]}
+```json
+{"n": 15, "pct": 85, "acs": [5.00, 7.00, 7.50, 7.90]}
 ```
 
 El cálculo es:
@@ -50,22 +88,3 @@ El cálculo es:
 Comisión upfront = ACS(nivel, término) × Prima × (1 − Sacrificio%)
 Admin charge     = interpolación entre AC0 y AC100 según el sacrificio
 ```
-
-## Cambiar la contraseña
-
-En [`assets/gate.js`](assets/gate.js) se guarda el SHA-256 de la clave. Para
-cambiarla:
-
-```bash
-printf %s "nuevaClave" | sha256sum
-```
-
-y se pega el hash en la constante `HASH`.
-
-> **No es seguridad real.** El sitio es público: todo el HTML y el JS se
-> descargan antes de pedir la clave, así que cualquiera que mire el código
-> fuente o borre el `<div id="gate">` desde el inspector ve el ilustrador
-> completo. El hash sólo evita que la contraseña quede legible en el repo.
-> Para que sea privado de verdad hay que mover el sitio a algo con
-> autenticación en el servidor (Cloudflare Access, Netlify password protection,
-> o Pages privado con plan Team/Enterprise).

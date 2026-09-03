@@ -1,4 +1,5 @@
-(function(){
+/* Se ejecuta recién cuando gate.js descifró la tabla y dejó window.ACS listo. */
+window.startApp=function(){
 "use strict";
 
 var TERMS=ACS.TERMS, AC0=ACS.AC0, AC100=ACS.AC100, SACS=ACS.SACS, MATRIX=ACS.MATRIX;
@@ -215,4 +216,4 @@ $("theme").addEventListener("click",function(){
 
 buildLevels(); buildMatrix(); checkPrima(); render();
 window.addEventListener("resize",function(){drawChart();});
-})();
+};
