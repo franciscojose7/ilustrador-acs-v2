@@ -37,9 +37,10 @@ tienen bytes cifrados.
 
 Cambiar la clave = volver a cifrar con otra:
 
-```bash
-ACS_PASS="la clave nueva" node tools/crypt.js encrypt
-git commit -am "rotar clave" && git push
+```
+node tools/crypt.js encrypt "la clave nueva"
+git commit -am "rotar clave"
+git push
 ```
 
 Como la única copia versionada es la cifrada, la clave es lo único que no se
@@ -55,12 +56,18 @@ Los números en claro viven en `data.src.json`, que está en `.gitignore`. Si no
 lo tenés en la máquina (clon nuevo, otra compu), se reconstruye desde la copia
 cifrada:
 
-```bash
-ACS_PASS="la clave" node tools/crypt.js decrypt     # -> data.src.json
-# editar data.src.json
-ACS_PASS="la clave" node tools/crypt.js encrypt     # -> assets/data.enc.js
-git commit -am "actualizar tabla" && git push
 ```
+node tools/crypt.js decrypt "la clave"     # -> data.src.json
+                                           # editar data.src.json
+node tools/crypt.js encrypt "la clave"     # -> assets/data.enc.js
+git commit -am "actualizar tabla"
+git push
+```
+
+La clave también se puede pasar por la variable `ACS_PASS` en vez de como
+argumento (`$env:ACS_PASS = "la clave"` en PowerShell, `ACS_PASS="la clave"` en
+bash). Sirve para no dejarla en el historial del shell, o si algún día esto
+corre desde un workflow de GitHub Actions, donde sale de un secret.
 
 | Clave del JSON | Qué es |
 |---|---|
