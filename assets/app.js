@@ -92,7 +92,7 @@ function drawChart(){
     g+="<text class='ax' x='"+(PL-10)+"' y='"+(py(y)+3.5).toFixed(1)+"' text-anchor='end'>"+pct(y,1)+"%</text>";}
   TERMS.forEach(function(t){
     g+="<text class='ax' x='"+px(t).toFixed(1)+"' y='"+(H-PB+18)+"' text-anchor='middle'>"+t+"</text>";});
-  g+="<text class='axname' x='"+PL+"' y='"+(H-6)+"'>Term (years)</text>";
+  g+="<text class='axname' x='"+(W-PR)+"' y='"+(H-6)+"' text-anchor='end'>Term (years)</text>";
   g+="<text class='axname' x='"+(PL-46)+"' y='16'>Admin charge (% p.a.)</text>";
   g+="</g>";
   var env=path(function(t){return ac0(t);}),k2;

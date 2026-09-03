@@ -58,7 +58,7 @@
       <input type="range" id="sacR" value="0" min="0" max="100" step="1">
     </div>
     <div class="bcell">
-      <span class="f-lab">Advisor Upfront Commission</span>
+      <span class="f-lab">Introducer Upfront Commission</span>
       <div class="fieldrow"><span class="unit">USD</span><input class="big amberv" type="number" id="com" step="100"></div>
       <div class="unit" id="comMax"></div>
     </div>
@@ -90,29 +90,22 @@
 
 <section class="panel">
   <div class="panel-h"><div class="panel-t">Structure commission scale</div>
-    <div class="panel-s">Fixed. ACS = maximum upfront commission (0% sacrifice) as a % of premium. The highlighted row is the selected level; terms between 3, 5, 8 and 10 years are interpolated.</div></div>
+    <div class="panel-s"></div></div>
   <div class="tscroll"><table id="lvls"></table></div>
 </section>
 
 <section class="panel matrixcard">
-  <div class="panel-h"><div class="panel-t">Published matrix</div>
+  <div class="panel-h"><div class="panel-t">Admin charge matrix</div>
     <div class="panel-s">Admin charge (%) by sacrifice and term. The highlighted cell is the closest to the current case.</div></div>
   <div class="tscroll"><table id="mtx"></table></div>
 </section>
 
-<details>
-  <summary>How it is calculated</summary>
-  <div class="cfg">
-    <div class="note">
-      Upfront commission = level's ACS at the chosen term &times; Premium &times; (1 &minus; Sacrifice%).<br>
-      Admin charge = interpolation between the 0% and the 100% sacrifice rows of the published matrix.<br>
-      All three tables (admin charge, matrix and commission scale) live in <b>assets/data.js</b>.
-    </div>
-    <div class="acts">
-      <button class="act" id="copy" type="button">Copy case summary</button>
-    </div>
-  </div>
-</details>
+
+
+<div class="acts">
+    <button class="act" id="copy" type="button">Copy case summary</button>
+</div>
+
 
 </div>
 
