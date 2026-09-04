@@ -178,7 +178,7 @@ function render(){
   $("acBps").textContent=Math.round(v*100)+" bps p.a. · range "+pct(b)+"–"+pct(a)+"%";
   $("curveEcho").textContent=sacTxt(s)+"%";
   var dAc=(a-b)*0.10, dCom=hasCom?cmax*0.10:0;
-  $("d10ac").textContent="−"+pct(dAc)+" pp ("+Math.round(dAc*100)+" bps)";
+  $("d10ac").textContent="−"+pct(dAc)+"% ("+Math.round(dAc*100)+" bps)";
   $("d10com").textContent=hasCom?("−"+fmtM.format(dCom)):"—";
   $("d10r").textContent=hasCom?(fmtM2.format(Math.round(dCom/(dAc*100)))+" USD"):"—";
   drawChart(); highlight();
